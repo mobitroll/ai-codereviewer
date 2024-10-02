@@ -10,7 +10,11 @@ inputs:
   OPENAI_API_MODEL:
     description: "OpenAI API model."
     required: false
-    default: "gpt-4"
+    default: "gpt-4o"
+  OPENAI_JSON_MODE:
+    description: "Enables json mode if true."
+    required: false
+    default: "true"
   exclude:
     description: "Glob patterns to exclude files from the diff analysis"
     required: false
