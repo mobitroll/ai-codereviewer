@@ -95,7 +95,7 @@ function analyzeCode(parsedDiff, prDetails) {
             for (const chunk of file.chunks) {
                 const prompt = createPrompt(file, chunk, prDetails);
                 const aiResponse = yield getAIResponse(prompt);
-                if (aiResponse) {
+                if (aiResponse && aiResponse.length) {
                     const newComments = createComment(file, chunk, aiResponse);
                     if (newComments) {
                         comments.push(...newComments);
