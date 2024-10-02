@@ -86,7 +86,6 @@ function createPrompt(file: File, chunk: Chunk, prDetails: PRDetails): string {
 - Provide comments and suggestions ONLY if there is something to improve, otherwise "reviews" should be an empty array.
 - Write the comment in GitHub Markdown format.
 - Use the given description only for the overall context and only comment the code.
-- IMPORTANT: NEVER suggest adding comments to the code.
 
 Review the following code diff in the file "${
     file.to
@@ -174,13 +173,15 @@ async function createReviewComment(
   pull_number: number,
   comments: Array<{ body: string; path: string; line: number }>
 ): Promise<void> {
-  await octokit.pulls.createReview({
+  var review = {
     owner,
     repo,
     pull_number,
     comments,
-    event: "COMMENT",
-  });
+    event: "COMMENT" as const,
+  };
+  console.log("Creating review:", review);
+  await octokit.pulls.createReview(review);
 }
 
 async function main() {
