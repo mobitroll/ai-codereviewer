@@ -86,14 +86,14 @@ function getDiff(owner, repo, pull_number) {
         return response.data;
     });
 }
-function analyzeCode(parsedDiff, prDetails) {
+function analyzeCode(parsedDiff, prDetails, customPrompts) {
     return __awaiter(this, void 0, void 0, function* () {
         const comments = [];
         for (const file of parsedDiff) {
             if (file.to === "/dev/null")
                 continue; // Ignore deleted files
             for (const chunk of file.chunks) {
-                const prompt = createPrompt(file, chunk, prDetails);
+                const prompt = createPrompt(file, chunk, prDetails, customPrompts);
                 const aiResponse = yield getAIResponse(prompt);
                 if (aiResponse && aiResponse.length) {
                     const newComments = createComment(file, chunk, aiResponse);
@@ -106,13 +106,14 @@ function analyzeCode(parsedDiff, prDetails) {
         return comments;
     });
 }
-function createPrompt(file, chunk, prDetails) {
+function createPrompt(file, chunk, prDetails, customPrompts) {
     return `Your task is to review pull requests. Instructions:
 - Reply in the JSON format without triple backticks:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<review comment>"}]}
 - Do not give positive comments or compliments.
 - Provide comments and suggestions ONLY if there is something to improve, otherwise "reviews" should be an empty array.
 - Write the comment in GitHub Markdown format.
 - Use the given description only for the overall context and only comment the code.
+${customPrompts}
 
 Review the following code diff in the file "${file.to}" and take the pull request title and description into account when writing the response.
   
@@ -228,7 +229,10 @@ function main() {
         const filteredDiff = parsedDiff.filter((file) => {
             return !excludePatterns.some((pattern) => { var _a; return (0, minimatch_1.default)((_a = file.to) !== null && _a !== void 0 ? _a : "", pattern); });
         });
-        const comments = yield analyzeCode(filteredDiff, prDetails);
+        const customPrompts = core.getMultilineInput("custom_prompts")
+            .map(customPrompt => `- ${customPrompt}`)
+            .join("\n");
+        const comments = yield analyzeCode(filteredDiff, prDetails, customPrompts);
         if (comments.length > 0) {
             yield createReviewComment(prDetails.owner, prDetails.repo, prDetails.pull_number, comments);
         }

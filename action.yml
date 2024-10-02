@@ -15,6 +15,10 @@ inputs:
     description: "Enables json mode if true."
     required: false
     default: "true"
+  custom_prompts:
+    description: "Custom commands to augment the agent's prompts with. Each line is an individual command."
+    required: false
+    default: ""
   exclude:
     description: "Glob patterns to exclude files from the diff analysis"
     required: false

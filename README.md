@@ -44,6 +44,9 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_MODEL: "gpt-4" # Optional: defaults to "gpt-4"
           exclude: "**/*.json, **/*.md" # Optional: exclude patterns separated by commas
+          custom_prompts: |
+            Do not worry about the verbosity of variable names, as long as they are somewhat descriptive.
+            Be sure to call out potential null pointer exceptions.
 ```
 
 4. Replace `your-username` with your GitHub username or organization name where the AI Code Reviewer repository is
