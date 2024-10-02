@@ -148,6 +148,7 @@ async function getAIResponse(prompt: string): Promise<Array<{
       return null;
     }
     const jsonRes = res.substring(jsonStart, jsonEnd + 1);
+    console.log("AI Response:", jsonRes);
     return JSON.parse(jsonRes).reviews;
   } catch (error) {
     console.error("Error:", error);
