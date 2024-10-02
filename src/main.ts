@@ -140,16 +140,8 @@ async function getAIResponse(prompt: string): Promise<Array<{
     });
 
     const res = response.choices[0].message?.content?.trim() || "{}";
-    // Remove lines ```json and ``` from the response
-    const jsonStart = res.indexOf("{");
-    const jsonEnd = res.lastIndexOf("}");
-    if (jsonStart === -1 || jsonEnd === -1) {
-      console.error("Error: JSON not found in response: " + res);
-      return null;
-    }
-    const jsonRes = res.substring(jsonStart, jsonEnd + 1);
-    console.log("AI Response:", jsonRes);
-    return JSON.parse(jsonRes).reviews;
+    console.log("AI Response:", res);
+    return JSON.parse(res).reviews;
   } catch (error) {
     console.error("Error:", error);
     return null;
