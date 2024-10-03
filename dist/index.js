@@ -52,6 +52,7 @@ const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL = core.getInput("OPENAI_API_MODEL");
 const OPENAI_JSON_MODE = core.getInput("OPENAI_JSON_MODE");
+const label = core.getInput("label");
 const octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
 const openai = new openai_1.default({
     apiKey: OPENAI_API_KEY,
@@ -69,6 +70,7 @@ function getPRDetails() {
             owner: repository.owner.login,
             repo: repository.name,
             pull_number: number,
+            labels: prResponse.data.labels.map((label) => label.name),
             title: (_a = prResponse.data.title) !== null && _a !== void 0 ? _a : "",
             description: (_b = prResponse.data.body) !== null && _b !== void 0 ? _b : "",
         };
@@ -194,9 +196,16 @@ function main() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const prDetails = yield getPRDetails();
+        // This is our opt-in mechanism
+        // Set the label if you want the action to run only when the label is present
+        if (label && !prDetails.labels.includes(label)) {
+            return;
+        }
         let diff;
         const eventData = JSON.parse((0, fs_1.readFileSync)((_a = process.env.GITHUB_EVENT_PATH) !== null && _a !== void 0 ? _a : "", "utf8"));
-        if (eventData.action === "opened" || eventData.action === "review_requested") {
+        if (eventData.action === "opened" ||
+            eventData.action === "review_requested" ||
+            eventData.action === "labeled") {
             diff = yield getDiff(prDetails.owner, prDetails.repo, prDetails.pull_number);
         }
         else if (eventData.action === "synchronize") {

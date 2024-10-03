@@ -9,6 +9,7 @@ const GITHUB_TOKEN: string = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY: string = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL: string = core.getInput("OPENAI_API_MODEL");
 const OPENAI_JSON_MODE: string = core.getInput("OPENAI_JSON_MODE");
+const label = core.getInput("label");
 
 const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
@@ -22,6 +23,7 @@ interface PRDetails {
   pull_number: number;
   title: string;
   description: string;
+  labels: string[];
 }
 
 async function getPRDetails(): Promise<PRDetails> {
@@ -37,6 +39,7 @@ async function getPRDetails(): Promise<PRDetails> {
     owner: repository.owner.login,
     repo: repository.name,
     pull_number: number,
+    labels: prResponse.data.labels.map((label) => label.name),
     title: prResponse.data.title ?? "",
     description: prResponse.data.body ?? "",
   };
@@ -187,12 +190,22 @@ async function createReviewComment(
 
 async function main() {
   const prDetails = await getPRDetails();
+
+  // This is our opt-in mechanism
+  // Set the label if you want the action to run only when the label is present
+  if (label && !prDetails.labels.includes(label)) {
+    return;
+  }
+
   let diff: string | null;
   const eventData = JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")
   );
 
-  if (eventData.action === "opened" || eventData.action === "review_requested") {
+  if (
+    eventData.action === "opened" ||
+    eventData.action === "review_requested" ||
+    eventData.action === "labeled") {
     diff = await getDiff(
       prDetails.owner,
       prDetails.repo,
