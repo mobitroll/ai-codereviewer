@@ -27,6 +27,19 @@ inputs:
     description: "Glob patterns to exclude files from the diff analysis"
     required: false
     default: ""
+  AZURE_OPENAI_DEPLOYMENT:
+    description: "Azure OpenAI deployment name"
+    required: false
+    default: ""
+  AZURE_OPENAI_ENDPOINT:
+    description: "Azure OpenAI endpoint. Example: https://example-resource.azure.openai.com/"
+    required: false
+    default: ""
+  AZURE_OPENAI_API_VERSION:
+    description: "Azure OpenAI API version. Example: 2023-07-01-preview"
+    required: false
+    default: ""
+
 runs:
   using: "node20"
   main: "dist/index.js"
